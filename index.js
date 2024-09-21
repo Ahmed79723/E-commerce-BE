@@ -16,8 +16,34 @@ import { dbConnection } from "./dataBase/dbConnection.js";
 // import dotenv from "dotenv"
 // dotenv.config({path:""})
 import "dotenv/config";
+import { errorHandler } from "./src/middleWares/errorHandler.js";
+import Stripe from "stripe";
+const stripe = new Stripe(
+  "sk_test_51PoFmy01oN2H7dAF3BQQlbEqrIPT3pG191V33afUgzjm1fbyL9FJXdTjBPrNCxDRknnfaGdbX34HfazK4ZXFEOjE00OvQTeI10"
+);
 const app = express();
 const port = process.env.PORT || 3011;
+//~ =====================================|stripe webHook|===================================================
+app.post(
+  "/api/webhook",
+  express.raw({ type: "application/json" }),
+  errorHandler((req, res) => {
+    const sig = req.headers["stripe-signature"].toString();
+
+    let event = Stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      "whsec_Nar9DYfSQ70UpZOBRcxc9VER3uRf87LN"
+    );
+    let checkout;
+    if (event.type == "checkout.session.completed") {
+      checkout = event.data.object;
+    }
+    // Return a 200 response to acknowledge receipt of the event
+    res.json({ msg: "success", checkout });
+  })
+);
+//~ =====================================|stripe webHook end|===================================================
 app.use(cors());
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));

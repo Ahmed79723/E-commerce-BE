@@ -9,7 +9,7 @@ import { sendEmails } from "../email/email.js";
 const sysUserAuthMW = (req, res, next, T_ID) => {
   return errorHandler(async (req, res, next) => {
     // check end point headers for token existence
-    if (!req.headers.toke)
+    if (!req.headers.token)
       return next(new AppError("No token, plz Log In again", 404));
     // extract the token bearer and core after validating token existence
     const [bearer, token] = req.headers.token.split(" ");

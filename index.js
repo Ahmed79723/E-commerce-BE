@@ -109,7 +109,7 @@ app.get("/verify/otp/:otp", async (req, res, next) => {
   }
 });
 //? =====================================|default end point|===================================================
-app.get("/", (req, res) => res.send("Welcome to My Job Search App"));
+app.get("/", (req, res) => res.send("Welcome to My E-Commerce API"));
 //^ =====================================|404 end point|===================================================
 app.use(
   "*",

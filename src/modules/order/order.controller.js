@@ -4,9 +4,7 @@ import { errorHandler } from "../../middleWares/errorHandler.js";
 import { AppError } from "../../utils/appError.js";
 import { Product } from "../../../models/product.model.js";
 import Stripe from "stripe";
-const stripe = new Stripe(
-  "sk_test_51PoFmy01oN2H7dAF3BQQlbEqrIPT3pG191V33afUgzjm1fbyL9FJXdTjBPrNCxDRknnfaGdbX34HfazK4ZXFEOjE00OvQTeI10"
-);
+const stripe = new Stripe(process.env.Stripe_Secret_Key);
 import { clearCart } from "../handlers/handlers.js";
 import { Coupon } from "../../../models/coupon.model.js";
 import { calcTotalCartPrice } from "../../middleWares/cart/cartMW.js";

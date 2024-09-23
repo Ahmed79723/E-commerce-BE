@@ -2,6 +2,7 @@
 process.on("uncaughtException", (err) => {
   console.log("error in code", err);
 });
+import "dotenv/config";
 import express from "express";
 import { globalErrorMW } from "./src/middleWares/globalErrorMW.js";
 import { User } from "./models/user.model.js";
@@ -12,15 +13,12 @@ import { emailToken797 } from "./src/email/email.js";
 import { globalRoutes } from "./src/modules/globalRoutes.js";
 import { imagesCleanerMW } from "./src/middleWares/imagesCleanerMW.js";
 import cors from "cors";
+import { errorHandler } from "./src/middleWares/errorHandler.js";
 import { dbConnection } from "./dataBase/dbConnection.js";
 // import dotenv from "dotenv"
 // dotenv.config({path:""})
-import "dotenv/config";
-import { errorHandler } from "./src/middleWares/errorHandler.js";
 import Stripe from "stripe";
-const stripe = new Stripe(
-  "sk_test_51PoFmy01oN2H7dAF3BQQlbEqrIPT3pG191V33afUgzjm1fbyL9FJXdTjBPrNCxDRknnfaGdbX34HfazK4ZXFEOjE00OvQTeI10"
-);
+const stripe = new Stripe(process.env.Stripe_Secret_Key);
 const app = express();
 const port = process.env.PORT || 3011;
 //~ =====================================|stripe webHook|===================================================
@@ -30,10 +28,10 @@ app.post(
   errorHandler((req, res) => {
     const sig = req.headers["stripe-signature"].toString();
 
-    let event = Stripe.webhooks.constructEvent(
+    let event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      "whsec_Nar9DYfSQ70UpZOBRcxc9VER3uRf87LN"
+      process.env.Stripe_Secret_Key
     );
     let checkout;
     if (event.type == "checkout.session.completed") {

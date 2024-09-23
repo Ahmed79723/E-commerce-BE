@@ -17,7 +17,7 @@ function calcTotalCartPrice(cartExists) {
 const cartMW = errorHandler(async (req, res, next) => {
   const cartExists = await Cart.findOne({ userId: req.validMWUser._id });
   const product = await Product.findById(req.body.product);
-  req.body.price = product.price;
+  req.body.price = product?.price;
   if (!product) return next(new AppError("product Not found", 404));
   if (product.stock < req.body.quantity)
     return next(new AppError("product quantity exceeded stock", 409));

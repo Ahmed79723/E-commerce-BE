@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import { User } from "../../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { errorHandler } from "./errorHandler.js";
@@ -22,7 +22,7 @@ const signinUserVerify = errorHandler(async (req, res, next) => {
     sendEmails(user?.email, user?.username, randomOtp);
   }
 
-  if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
+  if (!user || !bcryptjs.compareSync(req.body.password, user.password)) {
     return next(new AppError(`Wrong login info`, 401));
   }
   await User.updateOne({ email: user.email }, { status: "online" });

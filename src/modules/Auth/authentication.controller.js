@@ -2,7 +2,7 @@ import { User } from "../../../models/user.model.js";
 import { sendEmails } from "../../email/email.js";
 import { errorHandler } from "../../middleWares/errorHandler.js";
 import { AppError } from "../../utils/appError.js";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 
 // ~=====================================|get logged User Data|===================================================
 const getUserData = errorHandler(async (req, res, next) => {
@@ -106,7 +106,7 @@ const deleteUser = errorHandler(async (req, res, next) => {
 // });
 // ~=====================================|change logged User Password|===================================================
 const changeUserPass = errorHandler(async (req, res, next) => {
-  if (bcrypt.compareSync(req.body.oldPassword, req.validMWUser.password)) {
+  if (bcryptjs.compareSync(req.body.oldPassword, req.validMWUser.password)) {
     const user = await User.findByIdAndUpdate(
       req.sysUser.userId,
       {

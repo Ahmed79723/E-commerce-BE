@@ -7,7 +7,7 @@ import express from "express";
 import { globalErrorMW } from "./src/middleWares/globalErrorMW.js";
 import { User } from "./models/user.model.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import { AppError } from "./src/utils/appError.js";
 import { emailToken797 } from "./src/email/email.js";
 import { globalRoutes } from "./src/modules/globalRoutes.js";
@@ -65,7 +65,7 @@ app.get("/verify/:token", async (req, res, next) => {
         otp: undefined,
         otpExpire: undefined,
         password:
-          bcrypt.hashSync(decoded.extraInfo.newPassword, 8) ||
+        bcryptjs.hashSync(decoded.extraInfo.newPassword, 8) ||
           decoded.userF.password,
       }
     );

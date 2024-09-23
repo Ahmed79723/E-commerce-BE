@@ -31,7 +31,7 @@ app.post(
     let event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      process.env.Stripe_Secret_Key
+      process.env.Stripe_Webhook_Key
     );
     let checkout;
     if (event.type == "checkout.session.completed") {
@@ -65,7 +65,7 @@ app.get("/verify/:token", async (req, res, next) => {
         otp: undefined,
         otpExpire: undefined,
         password:
-        bcryptjs.hashSync(decoded.extraInfo.newPassword, 8) ||
+          bcryptjs.hashSync(decoded.extraInfo.newPassword, 8) ||
           decoded.userF.password,
       }
     );

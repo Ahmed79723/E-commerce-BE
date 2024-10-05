@@ -18,6 +18,9 @@ import { dbConnection } from "./dataBase/dbConnection.js";
 // import dotenv from "dotenv"
 // dotenv.config({path:""})
 import Stripe from "stripe";
+import { Order } from "./models/order.model.js";
+import { Cart } from "./models/cart.model.js";
+import { Product } from "./models/product.model.js";
 const stripe = new Stripe(process.env.Stripe_Secret_Key);
 const app = express();
 const port = process.env.PORT || 3011;
@@ -25,7 +28,7 @@ const port = process.env.PORT || 3011;
 app.post(
   "/api/webhook",
   express.raw({ type: "application/json" }),
-  errorHandler((req, res) => {
+  errorHandler(async (req, res) => {
     const sig = req.headers["stripe-signature"].toString();
 
     let event = stripe.webhooks.constructEvent(
@@ -36,6 +39,36 @@ app.post(
     let checkout;
     if (event.type == "checkout.session.completed") {
       checkout = event.data.object;
+      const user = await User.findOne({ email: checkout.customer_email });
+      // 1-get user cart by cartID
+      const cart = await Cart.findById(checkout.client_reference_id);
+      if (!cart) return next(new AppError("cart not found", 404));
+      // 3-create order
+      const order = await Order.create({
+        userId: user._id,
+        orderItems: cart.cartItems,
+        shippingAddress: checkout.metadata,
+        totalOrderPrice: checkout.amount_total / 100,
+        paymentType: "card",
+        isPaid: true,
+      });
+      await order.save();
+      // if order is created
+      order && res.status(201).json({ msg: "success", order });
+      // if order not created
+      order || next(new AppError("order not created", 404));
+      // 4-increment sold and decrement stock
+      const options = cart.cartItems.map((prod) => {
+        return {
+          updateOne: {
+            filter: { _id: prod.product },
+            update: { $inc: { sold: prod.quantity, stock: -prod.quantity } },
+          },
+        };
+      });
+      await Product.bulkWrite(options);
+      // 5-clear user cart
+      await Cart.findByIdAndDelete(cart._id);
     }
     // Return a 200 response to acknowledge receipt of the event
     res.json({ msg: "success", checkout });
